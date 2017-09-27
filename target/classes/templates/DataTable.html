@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Insert title here</title>
+<!-- jQuery -->
+<script type="text/javascript" charset="utf8"
+	src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<!-- DataTables -->
+<script type="text/javascript"
+	src="http://cdn.datatables.net/1.10.15/js/jquery.dataTables.js"></script>
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css"
+	href="http://cdn.datatables.net/1.10.15/css/jquery.dataTables.css" />
+
+
+</head>
+<body>
+	<div>
+		<h1>head</h1>
+	</div>
+	<div>
+		<button id="btnAdd">Add Row</button>
+		<table id="example">
+			<thead>
+				<tr>
+					<th><label> <input type="checkbox" /> <span>All</span>
+					</label></th>
+					<th>会社名称</th>
+					<th>略称</th>
+					<th>都市</th>
+					<th>住所</th>
+					<th>電話番号</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+	</div>
+
+	<script type="text/javascript">
+	function buttonDelete(strV){
+		//alert(obj);
+		alert(strV);
+	}
+	$(document).ready(function() {  
+		
+		
+		
+		$("#btnAdd").on('click', function() {
+			
+		});
+		
+	
+		$("#example").dataTable({
+			  "drawCallback": function(settings) {
+				   $('#example tr:eq(0) th:eq(0)').removeClass("sorting sorting_desc sorting_asc"); 
+			    },
+			"bProcessing":true,//Loading　
+			"bServerSide":true,//サーバーからデータを取得するフラグを指定する
+			"bFilter":false,//検索　不可
+			"bLengthChange":false,//　ページに表示のレコード数を変更　不可
+			"sAjaxSource":"/getDataTablesList",
+			"fnServer":getResData,//ajax関数でサーバーにアクセス
+			 'ordering':true,//　ソート　可
+			 "aoColumnDefs":[
+					{ "bSortable": false, "aTargets": [ 0 ] }　//　「0」を指定して、ソート　不可
+				],
+			"aoColumns":[
+				//列をカスタマイズ
+				//チェックボックス
+					{"aaData": "id",
+						"render": function(data, type, row) {  
+				     		return '<label>' +'<input type="checkbox"  value="'+data+'"/>' +
+					  	'<span></span>' + '</label>';
+						}
+					},
+				  {"aaData": "Name","asSorting": [ "desc", "asc", "asc" ],"sClass":"right" },
+				  {"aaData": "customerSN","sClass":"right"},
+				  {"aaData": "City","sClass":"right"},
+				  {"aaData": "Address","sClass":"right"},
+				  {"aaData": "contact_phone","sClass":"right"},
+				  {"aaData": "id",
+					  "render":function(data,type,full){
+							return  '<button id="btnAdd">新規</button>　<button id="btnEdit" class="btnEdit"  value="'+full[0]+'" >編集</button>　<button id="btnDel"  onclick="buttonDelete('+full[0]+')">削除</button>';
+						}
+					},
+			],
+			"oLanguage":{
+				"sLengthMenu": "每页显示 _MENU_ 条记录",
+				"sZeroRecords": "抱歉， 没有找到",
+				"sInfo": "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
+				"sInfoEmpty": "没有数据",
+				"sInfoFiltered": "(从 _MAX_ 条数据中检索)",
+				"oPaginate": {
+				"sFirst": "首页",
+				"sPrevious": "前一页",
+				"sNext": "后一页",
+				"sLast": "尾页"
+			},
+			    "sZeroRecords": "没有检索到数据"
+			}
+			
+			
+			
+		});
+		
+		//編集
+		$(".btnEdit").on('click','th input:button',function(){
+			var that = this;
+			var id = $(this).attr("value"); 
+			alert(id);
+		});
+		//全選択
+		$(document).on('click', 'th input:checkbox', function() {
+	          var that = this;
+	          $(this).closest('table').find('tr > td:first-child input:checkbox')
+	              .each(function() {
+	                  this.checked = that.checked;
+	                  $(this).closest('tr').toggleClass('selected');
+	              });
+	      });
+      
+        
+        
+    });  
+	
+	function getResData(sUrl,sData,sFnCallBack){
+		
+	/* 	sData={"start":1,
+				"length":1,
+				"order[0][column]":1,
+				"order[0][dir]:":"ASC",
+				"search[value]":1
+				} */
+		$.ajax({
+			url:sUrl,
+			data:{"aoData":JSON.stringify(sData)},
+			type:'post',
+			dataType:'json',
+			async:false,
+			success:function(result){
+				sFuCallBack(result);
+				},
+				error : function(msg){
+					alert(msg);
+				}
+			});
+		}	
+	</script>
+	<div>
+		<h1>foot</h1>
+	</div>
+</body>
+</html>
